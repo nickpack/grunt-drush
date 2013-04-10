@@ -1,0 +1,17 @@
+{
+  "name": "grunt-drush",
+  "version": "0.1",
+  "description": "Drush task execution from Grunt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nickpack/grunt-drush.git"
+  },
+  "main": "grunt.js",
+  "keywords": [
+    "gruntplugin",
+    "drush"
+  ],
+  "author": "Nick Pack <nick@nickpack.com>",
+  "license": "MIT",
+  "dependencies": {}
+}
