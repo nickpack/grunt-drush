@@ -30,6 +30,11 @@
         args.push(f.dest);
       }
 
+      var origCwd = process.cwd();
+      if (f.cwd) {
+        grunt.file.setBase(f.cwd);
+      }
+
       var drush = grunt.util.spawn({
         cmd: 'drush',
         args: args
@@ -45,6 +50,8 @@
 
       drush.stdout.pipe(process.stdout);
       drush.stderr.pipe(process.stderr);
+
+      grunt.file.setBase(origCwd);
     }, cb);
   });
 };
