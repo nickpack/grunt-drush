@@ -13,7 +13,6 @@
   var fs   = require('fs'),
   path = require('path');
   var _ = grunt.util._;
-  var helpers = require('grunt-lib-contrib').init(grunt);
   var self = this;
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
