@@ -25,7 +25,7 @@
     grunt.util.async.forEachSeries(this.files, function(f, next) {
       args = [].concat(f.args);
 
-      if (f.dest !== 'undefined') {
+      if (typeof f.dest !== 'undefined') {
         args.push(f.dest);
       }
 
