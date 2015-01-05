@@ -49,7 +49,7 @@
       this.files.forEach(function(file) {
         var fileArgs;
 
-        if (file.dest !== 'undefined') {
+        if (typeof file.dest !== 'undefined') {
           fileArgs = args.concat([file.dest]);
         }
 
