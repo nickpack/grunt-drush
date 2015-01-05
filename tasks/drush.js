@@ -15,6 +15,8 @@
   var _ = grunt.util._;
   var self = this;
 
+  var cmd = grunt.config('drush.cmd') || 'drush';
+
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
     var cb = this.async();
     var options = this.options();
@@ -35,7 +37,7 @@
       }
 
       var drush = grunt.util.spawn({
-        cmd: 'drush',
+        cmd: cmd,
         args: args
       }, function(error, result, code) {
         if (code === 127) {
