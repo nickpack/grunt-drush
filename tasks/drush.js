@@ -10,49 +10,88 @@
 
  module.exports = function(grunt) {
 
-  var fs   = require('fs'),
-  path = require('path');
-  var _ = grunt.util._;
-  var self = this;
-
-  var cmd = grunt.config('drush.cmd') || 'drush';
+  var _ = require('lodash'),
+      fs = require('fs'),
+      path = require('path'),
+      cmd = grunt.config('drush.cmd') || 'drush';
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
-    var cb = this.async();
-    var options = this.options();
-    var args;
+    var self = this,
+        options = self.options(),
+        args = self.data.args;
 
     grunt.verbose.writeflags(options, 'Options');
 
-    grunt.util.async.forEachSeries(this.files, function(f, next) {
-      args = [].concat(f.args);
-
-      if (typeof f.dest !== 'undefined') {
-        args.push(f.dest);
-      }
+    var callDrush = function(args) {
 
       var origCwd = process.cwd();
-      if (f.cwd) {
-        grunt.file.setBase(f.cwd);
+
+      if (options.cwd) {
+        grunt.file.setBase(options.cwd);
       }
 
       var drush = grunt.util.spawn({
         cmd: cmd,
         args: args
       }, function(error, result, code) {
-        if (code === 127) {
-          return grunt.warn(
-            'You need to have drush installed and in your PATH for\n' +
-            'this task to work.'
-            );
+
+        var drushResult;
+
+        if (result.stderr.length) {
+          grunt.log.error(result.stderr);
         }
-        next(error);
+
+        if (result.stdout.length) {
+          grunt.log.info(result.stdout);
+        }
+
+        switch (code) {
+
+          case 127:
+            drushResult = grunt.warn(
+              'You need to have drush installed in your PATH\n' +
+              'or set it in the configuration for this task to work.'
+            );
+            break;
+
+          case 0:
+            drushResult = grunt.info(
+              'Drush executed without an error.'
+            );
+            break;
+
+          default:
+            drushResult = grunt.error('Drush failed: ' + code);
+            break;
+        }
+
+        return drushResult;
+
       });
 
-      drush.stdout.pipe(process.stdout);
-      drush.stderr.pipe(process.stderr);
-
       grunt.file.setBase(origCwd);
-    }, cb);
+
+    };
+
+    var processFiles = function() {
+      self.files.forEach(function(file) {
+        var fileArgs;
+
+        if (_.isString(file.dest)) {
+          //fileArgs = args.push(file.dest);
+          fileArgs = args.concat([file.dest]);
+        }
+
+        callDrush(fileArgs);
+      });
+    };
+
+    if (_.isArray(this.files)) {
+      processFiles();
+    } else {
+      callDrush(args);
+    }
+
   });
+
 };

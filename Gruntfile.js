@@ -23,7 +23,7 @@ module.exports = function(grunt) {
 
     drush: {
       install: {
-        args: ['make', 'example/core.make'],
+        args: ['make', 'example/core.make', '-v'],
         dest: 'src'
       }
     }
