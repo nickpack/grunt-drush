@@ -14,7 +14,10 @@
       fs = require('fs'),
       path = require('path'),
       spawn = require('win-spawn'),
-      cmd = grunt.config('drush.cmd') || 'drush';
+      cmd = grunt.config('drush.cmd') || 'drush',
+      os = require('os'),
+      async = require('async'),
+      concurrencyLevel = (os.cpus().length || 1) * 2;
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
     var self = this,
@@ -65,16 +68,15 @@
     };
 
     var processFiles = function() {
-      self.files.forEach(function(file) {
+      async.eachLimit(self.files, concurrencyLevel, function (file, next) {
         var fileArgs;
 
         if (_.isString(file.dest)) {
-          //fileArgs = args.push(file.dest);
           fileArgs = args.concat([file.dest]);
         }
 
         callDrush(fileArgs);
-      });
+      }, cb);
     };
 
     if (_.isArray(this.files)) {
