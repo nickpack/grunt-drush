@@ -16,22 +16,12 @@
   var self = this;
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
-    var cb = this.async();
     var options = this.options();
-    var args;
-
-    grunt.verbose.writeflags(options, 'Options');
-
-    grunt.util.async.forEachSeries(this.files, function(f, next) {
-      args = [].concat(f.args);
-
-      if (f.dest !== 'undefined') {
-        args.push(f.dest);
-      }
-
+    var args = this.data.args;
+    var callDrush = function(args) {
       var origCwd = process.cwd();
-      if (f.cwd) {
-        grunt.file.setBase(f.cwd);
+      if (options.cwd) {
+        grunt.file.setBase(options.cwd);
       }
 
       var drush = grunt.util.spawn({
@@ -42,15 +32,29 @@
           return grunt.warn(
             'You need to have drush installed and in your PATH for\n' +
             'this task to work.'
-            );
+          );
         }
-        next(error);
       });
 
       drush.stdout.pipe(process.stdout);
       drush.stderr.pipe(process.stderr);
 
       grunt.file.setBase(origCwd);
-    }, cb);
+    };
+
+    if (this.files.length === 0) {
+      callDrush(args);
+    }
+    else {
+      this.files.forEach(function(file) {
+        var fileArgs;
+
+        if (file.dest !== 'undefined') {
+          fileArgs = args.concat([file.dest]);
+        }
+
+        callDrush(fileArgs);
+      });
+    }
   });
 };
