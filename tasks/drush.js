@@ -13,6 +13,7 @@
   var _ = require('lodash'),
       fs = require('fs'),
       path = require('path'),
+      spawn = require('win-spawn'),
       cmd = grunt.config('drush.cmd') || 'drush';
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
@@ -20,53 +21,43 @@
         options = self.options(),
         args = self.data.args;
 
+    var cb = this.async();
+
     grunt.verbose.writeflags(options, 'Options');
+
 
     var callDrush = function(args) {
 
-      var origCwd = process.cwd();
+      var origCwd = process.cwd(),
+          drushResult = null;
 
       if (options.cwd) {
         grunt.file.setBase(options.cwd);
       }
 
-      var drush = grunt.util.spawn({
-        cmd: cmd,
-        args: args
-      }, function(error, result, code) {
+      var cp = spawn(cmd, args, {stdio: 'inherit'});
 
-        var drushResult;
-
-        if (result.stderr.length) {
-          grunt.log.error(result.stderr);
-        }
-
-        if (result.stdout.length) {
-          grunt.log.info(result.stdout);
-        }
-
+      cp.on('error', grunt.warn);
+      cp.on('close', function (code) {
         switch (code) {
 
           case 127:
-            drushResult = grunt.warn(
+            drushResult = grunt.fatal(
               'You need to have drush installed in your PATH\n' +
               'or set it in the configuration for this task to work.'
             );
             break;
 
           case 0:
-            drushResult = grunt.info(
-              'Drush executed without an error.'
-            );
+            grunt.verbose.writeln('Drush completed without error');
             break;
 
           default:
-            drushResult = grunt.error('Drush failed: ' + code);
+            drushResult = grunt.warn('Drush failed: ' + code);
             break;
         }
 
         return drushResult;
-
       });
 
       grunt.file.setBase(origCwd);
