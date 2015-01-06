@@ -22,12 +22,10 @@
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
     var self = this,
         options = self.options(),
-        args = self.data.args;
-
-    var cb = this.async();
+        args = self.data.args,
+        cb = this.async();
 
     grunt.verbose.writeflags(options, 'Options');
-
 
     var callDrush = function(args) {
 
@@ -42,8 +40,8 @@
 
       cp.on('error', grunt.warn);
       cp.on('close', function (code) {
-        switch (code) {
 
+        switch (code) {
           case 127:
             drushResult = grunt.fatal(
               'You need to have drush installed in your PATH\n' +
@@ -61,6 +59,7 @@
         }
 
         return drushResult;
+
       });
 
       grunt.file.setBase(origCwd);
@@ -68,6 +67,7 @@
     };
 
     var processFiles = function() {
+
       async.eachLimit(self.files, concurrencyLevel, function (file, next) {
         var fileArgs;
 
@@ -77,6 +77,7 @@
 
         callDrush(fileArgs);
       }, cb);
+
     };
 
     if (_.isArray(this.files)) {
