@@ -45,15 +45,35 @@ grunt.initConfig({
 })
 ```
 
+### Configurable options
+#### cmd
+Path to the drush executable (Optional) - PATH is used if not specified.
+
+#### cwd
+Sets the current working directory (Optional) - Usually the path to your drupal installation.
+
+#### args
+A list of arguments to pass over to drush (Required), a javascript array of command parts to call drush with.
+ 
+```js
+args: ['make', 'example/core.make']
+```
+
+#### src (Deprecated)
+Supported only for backwards compatability, does nothing in the current release.
+
+#### dest
+The destination directory for the drush task to be run in to, mainly useful for make.
+
 ## TODO
 * Expand the functionality to do something more useful
 * Tests
-* Find a solution to using this.files for the config objects
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+* 0.0.5 - Refactored slightly to use newer tools, and resolve the original flaw whereby this.files was not populated if a src, or dest was not specified. Ability to specify the path to drush kindly added by @IslandUsurper
 * 0.0.4 - @chasingmaxwell Fixed an oversight on the test if dest is undefined
 * 0.0.3 - @thijsvdanker Removed deprecated contrib lib
 * 0.0.2 - @randallknutson Added the ability to specify the cwd
