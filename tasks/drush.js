@@ -28,6 +28,7 @@
         cb = this.async();
 
     grunt.verbose.writeflags(options, 'Options');
+    grunt.verbose.writeflags(args, 'Args');
 
     var callDrush = function(args) {
 
