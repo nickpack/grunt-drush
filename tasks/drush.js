@@ -45,7 +45,7 @@
 
         switch (code) {
           case 127:
-            drushResult = grunt.fatal(
+            grunt.fatal(
               'You need to have drush installed in your PATH\n' +
               'or set it in the configuration for this task to work.'
             );
@@ -56,40 +56,21 @@
             break;
 
           default:
-            drushResult = grunt.warn('Drush failed: ' + code);
+            grunt.warn('Drush failed: ' + code);
             break;
         }
 
-        cb();
+        drushResult = code === 0 || false;
+        grunt.verbose.writeln("Drush returned " + code);
 
-        return drushResult;
-
+        cb(drushResult);
       });
 
       grunt.file.setBase(origCwd);
 
     };
 
-    var processFiles = function() {
-
-      async.eachLimit(self.files, concurrencyLevel, function (file, next) {
-        var fileArgs;
-
-        if (_.isString(file.dest)) {
-          fileArgs = args.concat([file.dest]);
-        }
-
-        callDrush(fileArgs);
-      });
-
-    };
-
-    if (_.isArray(this.files)) {
-      processFiles();
-    } else {
-      callDrush(args);
-    }
-
+    callDrush(args);
   });
 
 };
