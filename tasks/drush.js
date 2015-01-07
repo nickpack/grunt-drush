@@ -14,14 +14,16 @@
       fs = require('fs'),
       path = require('path'),
       spawn = require('win-spawn'),
-      cmd = grunt.config('drush.cmd') || 'drush',
       os = require('os'),
       async = require('async'),
       concurrencyLevel = (os.cpus().length || 1) * 2;
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
     var self = this,
-        options = self.options(),
+        options = self.options({
+          cmd: 'drush',
+          cwd: false
+        }),
         args = self.data.args,
         cb = this.async();
 
@@ -36,7 +38,7 @@
         grunt.file.setBase(options.cwd);
       }
 
-      var cp = spawn(cmd, args, {stdio: 'inherit'});
+      var cp = spawn(options.cmd, args, {stdio: 'inherit'});
 
       cp.on('error', grunt.warn);
       cp.on('close', function (code) {
@@ -58,6 +60,8 @@
             break;
         }
 
+        cb();
+
         return drushResult;
 
       });
@@ -76,7 +80,7 @@
         }
 
         callDrush(fileArgs);
-      }, cb);
+      });
 
     };
 
