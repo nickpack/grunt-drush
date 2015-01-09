@@ -25,12 +25,12 @@
           cwd: false
         }),
         args = self.data.args,
-        cb = this.async();
+        done = this.async();
 
     grunt.verbose.writeflags(options, 'Options');
     grunt.verbose.writeflags(args, 'Args');
 
-    var callDrush = function(args) {
+    var callDrush = function(spawnArgs, filesNext) {
 
       var origCwd = process.cwd(),
           drushResult = null;
@@ -39,7 +39,7 @@
         grunt.file.setBase(options.cwd);
       }
 
-      var cp = spawn(options.cmd, args, {stdio: 'inherit'});
+      var cp = spawn(options.cmd, spawnArgs, {stdio: 'inherit'});
 
       cp.on('error', grunt.warn);
       cp.on('close', function (code) {
@@ -53,7 +53,7 @@
             break;
 
           case 0:
-            grunt.verbose.writeln('Drush completed without error');
+            grunt.verbose.writeln('Drush completed without error.');
             break;
 
           default:
@@ -62,16 +62,39 @@
         }
 
         drushResult = code === 0 || false;
-        grunt.verbose.writeln("Drush returned " + code);
 
-        cb(drushResult);
+        if (typeof filesNext !== 'undefined') {
+          filesNext();
+        }
+        else {
+          done(drushResult);
+        }
+
       });
 
       grunt.file.setBase(origCwd);
 
     };
 
-    callDrush(args);
+    var processFiles = function() {
+
+      async.eachSeries(self.files, function (file, next) {
+        var fileArgs;
+
+        if (_.isString(file.dest)) {
+          fileArgs = args.concat([file.dest]);
+        }
+
+        callDrush(fileArgs, next);
+      }, done);
+
+    };
+
+    if (this.files.length > 0) {
+      processFiles();
+    } else {
+      callDrush(args);
+    }
   });
 
 };
