@@ -63,10 +63,9 @@
 
         drushResult = code === 0 || false;
 
-        if (typeof filesNext !== 'undefined') {
+        if (!_.isUndefined(filesNext)) {
           filesNext();
-        }
-        else {
+        } else {
           done(drushResult);
         }
 
