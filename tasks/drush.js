@@ -14,20 +14,23 @@
       fs = require('fs'),
       path = require('path'),
       spawn = require('win-spawn'),
-      cmd = grunt.config('drush.cmd') || 'drush',
       os = require('os'),
       async = require('async'),
       concurrencyLevel = (os.cpus().length || 1) * 2;
 
   grunt.registerMultiTask('drush', 'Drush task runner for grunt.', function() {
     var self = this,
-        options = self.options(),
+        options = self.options({
+          cmd: 'drush',
+          cwd: false
+        }),
         args = self.data.args,
-        cb = this.async();
+        done = this.async();
 
     grunt.verbose.writeflags(options, 'Options');
+    grunt.verbose.writeflags(args, 'Args');
 
-    var callDrush = function(args) {
+    var callDrush = function(spawnArgs, filesNext) {
 
       var origCwd = process.cwd(),
           drushResult = null;
@@ -36,29 +39,35 @@
         grunt.file.setBase(options.cwd);
       }
 
-      var cp = spawn(cmd, args, {stdio: 'inherit'});
+      var cp = spawn(options.cmd, spawnArgs, {stdio: 'inherit'});
 
       cp.on('error', grunt.warn);
       cp.on('close', function (code) {
 
         switch (code) {
           case 127:
-            drushResult = grunt.fatal(
+            grunt.fatal(
               'You need to have drush installed in your PATH\n' +
               'or set it in the configuration for this task to work.'
             );
             break;
 
           case 0:
-            grunt.verbose.writeln('Drush completed without error');
+            grunt.verbose.writeln('Drush completed without error.');
             break;
 
           default:
-            drushResult = grunt.warn('Drush failed: ' + code);
+            grunt.warn('Drush failed: ' + code);
             break;
         }
 
-        return drushResult;
+        drushResult = code === 0 || false;
+
+        if (!_.isUndefined(filesNext)) {
+          filesNext();
+        } else {
+          done(drushResult);
+        }
 
       });
 
@@ -68,24 +77,23 @@
 
     var processFiles = function() {
 
-      async.eachLimit(self.files, concurrencyLevel, function (file, next) {
+      async.eachSeries(self.files, function (file, next) {
         var fileArgs;
 
         if (_.isString(file.dest)) {
           fileArgs = args.concat([file.dest]);
         }
 
-        callDrush(fileArgs);
-      }, cb);
+        callDrush(fileArgs, next);
+      }, done);
 
     };
 
-    if (_.isArray(this.files)) {
+    if (this.files.length > 0) {
       processFiles();
     } else {
       callDrush(args);
     }
-
   });
 
 };
