@@ -45,6 +45,20 @@ grunt.initConfig({
 })
 ```
 
+### Example - Run a command and surpress stdout
+```js
+grunt.initConfig({
+    drush: {
+      runserver: {
+        args: ['runserver', '8080'],
+        dest: 'src',
+        options: {stdio: 'ignore'}
+      }
+    },
+})
+```
+
+
 ### Configurable options
 #### cmd
 Path to the drush executable (Optional) - PATH is used if not specified.
@@ -57,6 +71,12 @@ A list of arguments to pass over to drush (Required), a javascript array of comm
 
 ```js
 args: ['make', 'example/core.make']
+```
+#### options
+A list of options to be passed to [child_process.spawn](https://nodejs.org/api/child_process.html#child_process_child_process_spawn_command_args_options) such as stdout/stderr, uid/gid, or environment variables.
+
+```js
+options: {stdio: 'ignore'}
 ```
 
 #### src (Deprecated)

@@ -22,7 +22,8 @@
     var self = this,
         options = self.options({
           cmd: 'drush',
-          cwd: false
+          cwd: false,
+          options: {stdio: 'inherit'}
         }),
         args = self.data.args,
         done = this.async();
@@ -39,7 +40,7 @@
         grunt.file.setBase(options.cwd);
       }
 
-      var cp = spawn(options.cmd, spawnArgs, {stdio: 'inherit'});
+      var cp = spawn(options.cmd, spawnArgs, options.options);
 
       cp.on('error', grunt.warn);
       cp.on('close', function (code) {
