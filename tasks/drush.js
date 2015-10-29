@@ -27,6 +27,16 @@
         args = self.data.args,
         done = this.async();
 
+    if (grunt.option('debug')) {
+        args.push('--debug');
+    }
+    if (grunt.option('verbose')) {
+        args.push('--verbose');
+    }
+    if (grunt.option('no-write')) {
+        args.push('--simulate');
+    }
+
     grunt.verbose.writeflags(options, 'Options');
     grunt.verbose.writeflags(args, 'Args');
 
