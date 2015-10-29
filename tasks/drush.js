@@ -22,10 +22,21 @@
     var self = this,
         options = self.options({
           cmd: 'drush',
-          cwd: false
+          cwd: false,
+          options: {stdio: 'inherit'}
         }),
         args = self.data.args,
         done = this.async();
+
+    if (grunt.option('debug')) {
+        args.push('--debug');
+    }
+    if (grunt.option('verbose')) {
+        args.push('--verbose');
+    }
+    if (grunt.option('no-write')) {
+        args.push('--simulate');
+    }
 
     grunt.verbose.writeflags(options, 'Options');
     grunt.verbose.writeflags(args, 'Args');
@@ -39,7 +50,7 @@
         grunt.file.setBase(options.cwd);
       }
 
-      var cp = spawn(options.cmd, spawnArgs, {stdio: 'inherit'});
+      var cp = spawn(options.cmd, spawnArgs, options.options);
 
       cp.on('error', grunt.warn);
       cp.on('close', function (code) {
