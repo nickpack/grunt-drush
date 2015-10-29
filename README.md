@@ -93,6 +93,7 @@ The destination directory for the drush task to be run in to, mainly useful for 
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
 ## Release History
+* 0.0.7 - @grayside Mirror debugging grunt options to drush, @mikeyp Allow options to be passed spawn.
 * 0.0.6 - @chasingmaxwell fixed regressions caused by my previous refactor
 * 0.0.5 - Refactored slightly to use newer tools, and resolve the original flaw whereby this.files was not populated if a src, or dest was not specified. Ability to specify the path to drush kindly added by @IslandUsurper
 * 0.0.4 - @chasingmaxwell Fixed an oversight on the test if dest is undefined
